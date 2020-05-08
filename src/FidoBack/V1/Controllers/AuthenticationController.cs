@@ -16,13 +16,13 @@ namespace FidoAuth.V1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LoginController : ControllerBase
+    public class AuthenticationController : ControllerBase
     {
         private readonly IDataStore _dataStore;
         private readonly IMemoryCache _memoryCache;
         private readonly Fido2 _lib;
 
-        public LoginController(IConfiguration config, IMemoryCache memoryCache, IDataStore dataStorage)
+        public AuthenticationController(IConfiguration config, IMemoryCache memoryCache, IDataStore dataStorage)
         {
             _memoryCache = memoryCache;
             _dataStore = dataStorage;
