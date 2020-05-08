@@ -1,0 +1,146 @@
+﻿@{
+    ViewData["Title"] = "Authentication";
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Prisijungimas</title>
+
+    <style type="text/css">
+
+        .form-signin {
+        }
+
+        .form-label-group {
+        }
+    </style>
+</head>
+<body>
+    <form method="post" id="login">
+        <div class="text-center mb-4">
+            <img class="mb-4" src="/docs/4.4/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+            <h1 class="h3 mb-3 font-weight-normal">Prisijungimas</h1>
+            <p> Steps </p>
+        </div>
+
+        <div class="form-label-group">
+            <input type="text" id="inputID" class="form-control" placeholder="Slapyvardis" name="username" required autofocus>
+            <label for="inputID">Slapyvardis</label>
+        </div>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Prisijungti</button>
+    </form>
+</body>
+</html>
+
+<script type="text/javascript">
+
+    const host = "http://localhost:51938";
+
+    document.getElementById('login').addEventListener('submit', handleSignInSubmit);
+
+    async function handleSignInSubmit(event) {
+        event.preventDefault();
+        const username = this.username.value;
+        const formData = new FormData();
+        formData.append('username', username);
+
+        let assertionOptions;
+
+        try {
+            assertionOptions = await fetchAssertionOptions(formData);
+        } catch (e) {
+            showErrorAlert("Request to server failed");
+            throw e;
+        }
+
+        if (assertionOptions)
+        {
+            if (assertionOptions.status !== "ok") {
+                showErrorAlert(assertionOptions.errorMessage);
+            return;
+        }
+
+            const challenge = assertionOptions.challenge.replace(/-/g, "+").replace(/_/g, "/");
+            assertionOptions.challenge = Uint8Array.from(atob(challenge), c => c.charCodeAt(0));
+
+            assertionOptions.allowCredentials.forEach(function (listItem) {
+                const fixedId = listItem.id.replace(/\_/g, "/").replace(/\-/g, "+");
+                listItem.id = Uint8Array.from(atob(fixedId), c => c.charCodeAt(0));
+            });
+        }
+
+        showInformationAlert("Authenticating", "Follow instructions your browser provides");
+
+        let credential;
+        try {
+            credential = await navigator.credentials.get({ publicKey: assertionOptions });
+        } catch (err) {
+            showErrorAlert(err.message ? err.message : err);
+        }
+
+        if (credential)
+        try {
+            await verifyAssertionWithServer(credential);
+        } catch (e) {
+            showErrorAlert("Something unexpected happened");
+        }
+    }
+
+    async function fetchAssertionOptions(formData) {
+        const response = await fetch(host + '/assertionOptions', {
+            method: 'POST', 
+            body: formData, 
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        return data;
+    }
+
+
+    async function verifyAssertionWithServer(assertedCredential) {
+        const authData = new Uint8Array(assertedCredential.response.authenticatorData);
+        const clientDataJson = new Uint8Array(assertedCredential.response.clientDataJSON);
+        const rawId = new Uint8Array(assertedCredential.rawId);
+        const sig = new Uint8Array(assertedCredential.response.signature);
+        const data = {
+            id: assertedCredential.id,
+            rawId: coerceToBase64Url(rawId),
+            type: assertedCredential.type,
+            extensions: assertedCredential.getClientExtensionResults(),
+            response: {
+                authenticatorData: coerceToBase64Url(authData),
+                clientDataJson: coerceToBase64Url(clientDataJson),
+                signature: coerceToBase64Url(sig)
+            }
+        };
+
+        let response;
+        try {
+            const res = await fetch(host + '/makeAssertion', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            response = await res.json();
+        } catch (e) {
+            showErrorAlert("Request to server failed");
+            return;
+        }
+
+        if (response.status !== "ok") {
+            showErrorAlert(response.errorMessage);
+            return;
+        }
+
+        showSuccessAlert("Authenticated", "You have been successfully authenticated");
+    }
+</script>

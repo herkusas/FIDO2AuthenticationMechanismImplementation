@@ -1,0 +1,2 @@
+# FIDO2AuthenticationMechanismImplementation
+ Bakalaurinis darbas

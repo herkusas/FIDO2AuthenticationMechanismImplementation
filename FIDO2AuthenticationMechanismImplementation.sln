@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29721.120
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FidoBack", "src\FidoBack\FidoBack.csproj", "{BFF9A4F8-6557-422E-82AF-9987A0E7ECFD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FidoFront", "src\FidoFront\FidoFront.csproj", "{EE1AE7CE-D50B-48A9-AFA7-0247A8A07F14}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFF9A4F8-6557-422E-82AF-9987A0E7ECFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFF9A4F8-6557-422E-82AF-9987A0E7ECFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFF9A4F8-6557-422E-82AF-9987A0E7ECFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFF9A4F8-6557-422E-82AF-9987A0E7ECFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE1AE7CE-D50B-48A9-AFA7-0247A8A07F14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE1AE7CE-D50B-48A9-AFA7-0247A8A07F14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE1AE7CE-D50B-48A9-AFA7-0247A8A07F14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE1AE7CE-D50B-48A9-AFA7-0247A8A07F14}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D53EDEB4-BC0A-4100-9973-7F8BA8A257B1}
+	EndGlobalSection
+EndGlobal
