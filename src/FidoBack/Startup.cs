@@ -1,10 +1,13 @@
-﻿using FidoAuth.V1.Services.DataStore;
+﻿using Fido2NetLib;
+using FidoBack.V1.Options;
+using FidoBack.V1.Services.DataStore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
-namespace FidoAuth
+namespace FidoBack
 {
     public class Startup
     {
@@ -17,6 +20,20 @@ namespace FidoAuth
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<SqlServerStorageOptions>(options =>
+                options.ConnectionString = Configuration.GetConnectionString("FidoDB"));
+
+            services.Configure<FidoOptions>(options => Configuration.GetSection("FidoOptions").Bind(options));
+
+            services.AddTransient(
+                provider => new Fido2(new Fido2Configuration
+                {
+                    ServerDomain = provider.GetService<IOptions<FidoOptions>>().Value.ServerDomain,
+                    ServerName = "FIDO2 Authentication Mechanism Implementation",
+                    Origin = provider.GetService<IOptions<FidoOptions>>().Value.Origin,
+                    TimestampDriftTolerance = 0
+                }));
+
             services.AddControllers().AddNewtonsoftJson();
             services.AddHttpClient();
             services.AddMemoryCache();

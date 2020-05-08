@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
-using FidoAuth.V1.Models;
-using Microsoft.Extensions.Configuration;
+using FidoBack.V1.Models;
+using FidoBack.V1.Options;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 
-namespace FidoAuth.V1.Services.DataStore
+namespace FidoBack.V1.Services.DataStore
 {
     internal class SqlServerStore : IDataStore
     {
         private readonly string _connectionString;
 
-        public SqlServerStore(IConfiguration configuration)
+        public SqlServerStore(IOptions<SqlServerStorageOptions> sqlServerStorageOptions)
         {
-            _connectionString = configuration["Fido"];
+            _connectionString = sqlServerStorageOptions.Value.ConnectionString;
         }
         public Fido2User AddUser(string username, Func<Fido2User> addCallback)
         {

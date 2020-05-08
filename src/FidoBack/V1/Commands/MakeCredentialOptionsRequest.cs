@@ -1,4 +1,4 @@
-﻿namespace FidoAuth.V1.Commands
+﻿namespace FidoBack.V1.Commands
 {
     public class MakeCredentialOptionsRequest
     {

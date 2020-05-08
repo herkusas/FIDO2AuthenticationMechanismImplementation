@@ -8,10 +8,5 @@ namespace FidoFront.Controllers
         {
             return View();
         }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
     }
 }

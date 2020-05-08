@@ -1,7 +1,7 @@
 ﻿using System;
 using Fido2NetLib.Objects;
 
-namespace FidoAuth.V1.Models
+namespace FidoBack.V1.Models
 {
     public class StoredCredential
     {

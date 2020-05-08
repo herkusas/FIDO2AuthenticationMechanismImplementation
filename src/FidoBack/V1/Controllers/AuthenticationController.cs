@@ -5,14 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
-using FidoAuth.V1.Services.DataStore;
+using FidoBack.V1.Services.DataStore;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
-namespace FidoAuth.V1.Controllers
+namespace FidoBack.V1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -22,19 +21,11 @@ namespace FidoAuth.V1.Controllers
         private readonly IMemoryCache _memoryCache;
         private readonly Fido2 _lib;
 
-        public AuthenticationController(IConfiguration config, IMemoryCache memoryCache, IDataStore dataStorage)
+        public AuthenticationController(IMemoryCache memoryCache, IDataStore dataStorage, Fido2 lib)
         {
             _memoryCache = memoryCache;
             _dataStore = dataStorage;
-
-            var origin = config["fido2:origin"];
-            _lib = new Fido2(new Fido2Configuration
-            {
-                ServerDomain = config["fido2:serverDomain"],
-                ServerName = "Fido2 test",
-                Origin = origin,
-                TimestampDriftTolerance = config.GetValue<int>("fido2:TimestampDriftTolerance")
-            });
+            _lib = lib;
         }
 
         [HttpPost]

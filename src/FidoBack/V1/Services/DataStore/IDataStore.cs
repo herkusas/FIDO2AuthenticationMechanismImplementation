@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fido2NetLib;
-using FidoAuth.V1.Models;
+using FidoBack.V1.Models;
 
-namespace FidoAuth.V1.Services.DataStore
+namespace FidoBack.V1.Services.DataStore
 {
     public interface IDataStore
     {

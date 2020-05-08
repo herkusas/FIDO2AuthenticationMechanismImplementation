@@ -1,16 +1,13 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace FidoAuth
+namespace FidoBack
 {
     public class Program
     {
-        public static void Main(string[] args)
-        {
-            CreateWebHostBuilder(args).Build().Run();
-        }
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static void Main () => CreateWebHostBuilder().Build().Run();
+        public static IWebHostBuilder CreateWebHostBuilder() =>
+            WebHost.CreateDefaultBuilder()
                 .UseStartup<Startup>();
     }
 }
