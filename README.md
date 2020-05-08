@@ -1,2 +1,3 @@
 # FIDO2AuthenticationMechanismImplementation
- Bakalaurinis darbas
+
+Realizuota pasitelkiant https://github.com/abergs/fido2-net-lib 
