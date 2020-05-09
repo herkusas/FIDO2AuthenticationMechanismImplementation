@@ -39,7 +39,7 @@ namespace FidoBack.V1.Controllers
         [HttpPost]
         [EnableCors]
         [Route("/makeCredentialOptions")]
-        public IActionResult MakeCredentialOptions(MakeCredentialOptionsRequest request)
+        public async Task<IActionResult> MakeCredentialOptions([FromBody] MakeCredentialOptionsRequest request)
         {
             try
             {
@@ -71,8 +71,8 @@ namespace FidoBack.V1.Controllers
             }
             catch (Exception e)
             {
-                var errorEvent = new ErrorEvent(e, request.Username);
-                var result = _elasticClient.Index(errorEvent, i => i.Index(GetIndexName(nameof(Exception))));
+                var errorEvent = new ErrorEvent(e, request.Username, nameof(RegistrationController), nameof(MakeCredentialOptions));
+                await _elasticClient.IndexAsync(errorEvent, i => i.Index(GetIndexName(nameof(Exception))));
                 return Ok(new CredentialCreateOptions { Status = "error", ErrorMessage = FormatException(e) });
             }
         }
@@ -89,11 +89,14 @@ namespace FidoBack.V1.Controllers
                 type = string.Empty
             };
 
+            var username = string.Empty;
+
             try
             {
                 o = JsonConvert.DeserializeAnonymousType((Encoding.UTF8.GetString(attestationResponse.Response.ClientDataJson)), o);
                 var jsonOptions = _memoryCache.Get<string>(o.challenge);
                 var options = CredentialCreateOptions.FromJson(jsonOptions);
+                username = options.User.Name;
 
                 async Task<bool> Callback(IsCredentialIdUniqueToUserParams args)
                 {
@@ -118,6 +121,9 @@ namespace FidoBack.V1.Controllers
             }
             catch (Exception e)
             {
+                var errorEvent = new ErrorEvent(e, username, nameof(RegistrationController), nameof(MakeCredential));
+                await _elasticClient.IndexAsync(errorEvent, i => i.Index(GetIndexName(nameof(Exception))));
+
                 return Ok(new Fido2.CredentialMakeResult { Status = "error", ErrorMessage = FormatException(e) + $"ClientDataJson = {Encoding.UTF8.GetString(attestationResponse.Response.ClientDataJson)}" });
             }
         }

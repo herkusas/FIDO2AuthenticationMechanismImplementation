@@ -11,7 +11,7 @@ async function handleSignInSubmit(event) {
     try {
         assertionOptions = await fetchAssertionOptions(formData);
     } catch (serverException) {
-        console.Log(serverException);
+        console.log(serverException);
         showErrorAlert("Request to server failed");
         throw e;
     }
@@ -37,7 +37,7 @@ async function handleSignInSubmit(event) {
     try {
         credential = await navigator.credentials.get({ publicKey: assertionOptions });
     } catch (navigatorException) {
-        console.Log(navigatorException);
+        console.log(navigatorException);
         showErrorAlert("Operation cancelled");
     }
 
@@ -45,7 +45,7 @@ async function handleSignInSubmit(event) {
         try {
             await verifyAssertionWithServer(credential);
         } catch (assertionException) {
-            console.Log(assertionException);
+            console.log(assertionException);
             showErrorAlert("Something unexpected happened");
         }
 }
@@ -95,7 +95,7 @@ async function verifyAssertionWithServer(assertedCredential) {
 
         response = await res.json();
     } catch (serverException) {
-        console.Log(serverException);
+        console.log(serverException);
         showErrorAlert("Request to server failed");
         return;
     }

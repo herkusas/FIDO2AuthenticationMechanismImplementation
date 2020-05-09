@@ -22,7 +22,7 @@ async function handleRegisterSubmit(event) {
     try {
         makeCredentialOptions = await fetchCredentialOptions(data);
     } catch (serverException) {
-        console.Log(serverException);
+        console.log(serverException);
         showErrorAlert("Request to server failed");
     }
 
@@ -53,7 +53,7 @@ async function handleRegisterSubmit(event) {
             publicKey: makeCredentialOptions
         });
     } catch (navigatorException) {
-        console.Log(navigatorException);
+        console.log(navigatorException);
         showErrorAlert("Operation cancelled");
     }
 
