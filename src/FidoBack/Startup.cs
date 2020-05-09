@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Nest;
 
 namespace FidoBack
 {
@@ -23,9 +24,13 @@ namespace FidoBack
             services.Configure<SqlServerStorageOptions>(options =>
                 options.ConnectionString = Configuration.GetConnectionString("FidoDB"));
 
-            services.Configure<FidoOptions>(options => Configuration.GetSection("FidoOptions").Bind(options));
+            services.Configure<FidoOptions>(options => Configuration.GetSection(nameof(FidoOptions)).Bind(options));
 
-            services.AddTransient(
+            services.Configure<ElasticsearchOptions>(options => Configuration.GetSection(nameof(ElasticsearchOptions)).Bind(options));
+
+            services.Configure<IndexingOptions>(options => Configuration.GetSection(nameof(IndexingOptions)).Bind(options));
+
+            services.AddSingleton(
                 provider => new Fido2(new Fido2Configuration
                 {
                     ServerDomain = provider.GetService<IOptions<FidoOptions>>().Value.ServerDomain,
@@ -34,6 +39,10 @@ namespace FidoBack
                     TimestampDriftTolerance = 0
                 }));
 
+            services.AddSingleton(provider =>
+                new ElasticClient(
+                    new ConnectionSettings(provider.GetService<IOptions<ElasticsearchOptions>>().Value.Uri)));
+            
             services.AddControllers().AddNewtonsoftJson();
             services.AddHttpClient();
             services.AddMemoryCache();

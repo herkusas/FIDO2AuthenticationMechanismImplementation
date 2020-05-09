@@ -6,10 +6,13 @@ using Fido2NetLib;
 using Fido2NetLib.Objects;
 using FidoBack.V1.Commands;
 using FidoBack.V1.Models;
+using FidoBack.V1.Options;
 using FidoBack.V1.Services.DataStore;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using Nest;
 using Newtonsoft.Json;
 
 namespace FidoBack.V1.Controllers
@@ -21,12 +24,16 @@ namespace FidoBack.V1.Controllers
         private readonly IMemoryCache _memoryCache;
         private readonly IDataStore _dataStore;
         private readonly Fido2 _lib;
+        private readonly ElasticClient _elasticClient;
+        private readonly IndexingOptions _indexOptions;
 
-        public RegistrationController(IDataStore dataStore, IMemoryCache memoryCache, Fido2 lib)
+        public RegistrationController(IDataStore dataStore, IMemoryCache memoryCache, Fido2 lib, ElasticClient elasticClient, IOptions<IndexingOptions> indexOptions)
         {
             _memoryCache = memoryCache;
             _dataStore = dataStore;
             _lib = lib;
+            _elasticClient = elasticClient;
+            _indexOptions = indexOptions.Value;
         }
 
         [HttpPost]
@@ -64,6 +71,8 @@ namespace FidoBack.V1.Controllers
             }
             catch (Exception e)
             {
+                var errorEvent = new ErrorEvent(e, request.Username);
+                var result = _elasticClient.Index(errorEvent, i => i.Index(GetIndexName(nameof(Exception))));
                 return Ok(new CredentialCreateOptions { Status = "error", ErrorMessage = FormatException(e) });
             }
         }
@@ -116,6 +125,13 @@ namespace FidoBack.V1.Controllers
         private static string FormatException(Exception e)
         {
             return $"{e.Message}{(e.InnerException != null ? " (" + e.InnerException.Message + ")" : "")}";
+        }
+
+        private string GetIndexName(string eventType)
+        {
+            var indexPrefix = nameof(Exception) == eventType ? _indexOptions.ErrorIndexPrefix: _indexOptions.EventIndexPrefix;
+            var datetime = DateTimeOffset.Now;
+            return $"{indexPrefix}-{datetime.Year}.{datetime.Month}";
         }
     }
 }
