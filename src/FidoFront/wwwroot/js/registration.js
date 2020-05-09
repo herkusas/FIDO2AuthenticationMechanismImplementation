@@ -28,7 +28,8 @@ async function handleRegisterSubmit(event) {
 
     if (makeCredentialOptions) {
         if (makeCredentialOptions.status !== "ok") {
-            showErrorAlert(makeCredentialOptions.errorMessage);
+            console.log(makeCredentialOptions.errorMessage);
+            showErrorAlert("Toks vartotojas jau egzistuoja, pabandykite kitą slapyvardį");
             return;
         }
 

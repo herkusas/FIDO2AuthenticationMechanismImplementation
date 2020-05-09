@@ -101,7 +101,8 @@ async function verifyAssertionWithServer(assertedCredential) {
 
     if(response)
     if (response.status !== "ok") {
-        showErrorAlert(response.errorMessage);
+        console.log(response.errorMessage);
+        showErrorAlert("Toks vartotojas nėra registruotas sistemoje");
         return;
     }
     else
