@@ -23,7 +23,7 @@ async function handleRegisterSubmit(event) {
         makeCredentialOptions = await fetchCredentialOptions(data);
     } catch (serverException) {
         console.log(serverException);
-        showErrorAlert("Request to server failed");
+        showErrorAlert("Nepavyko pasiekti serverio");
     }
 
     if (makeCredentialOptions) {
@@ -45,7 +45,7 @@ async function handleRegisterSubmit(event) {
 
     }
 
-    showInformationAlert("Registering", "Follow instructions your browser provides");
+    showInformationAlert("Registruojama", "Sekite naršyklės instrukcijomis");
 
     let newCredential;
     try {
@@ -54,7 +54,7 @@ async function handleRegisterSubmit(event) {
         });
     } catch (navigatorException) {
         console.log(navigatorException);
-        showErrorAlert("Operation cancelled");
+        showErrorAlert("Oeracija atšaukta");
     }
 
     if (newCredential)
@@ -62,7 +62,7 @@ async function handleRegisterSubmit(event) {
             registerNewCredential(newCredential);
 
         } catch (e) {
-            showErrorAlert("Something unexpected happened");
+            showErrorAlert("Nepavyko verifikuoti duomenų");
         }
 }
 
@@ -103,7 +103,7 @@ async function registerNewCredential(newCredential) {
         response = await registerCredentialWithServer(data);
     } catch (serverException) {
         showErrorAlert(serverException);
-        showErrorAlert("Request to server failed");
+        showErrorAlert("Nepavyko pasiekti serverio");
     }
 
     if (response)
@@ -112,7 +112,7 @@ async function registerNewCredential(newCredential) {
             return;
         }
         else
-        showSuccessAlert("Registered", "You have been successfully registered to the system");
+        showSuccessAlert("Užsiregistravote", "Sveikiname Jūs sėkmingai užsiregistravote sistemoje");
 
     return;
 }

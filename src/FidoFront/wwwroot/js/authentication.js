@@ -12,8 +12,7 @@ async function handleSignInSubmit(event) {
         assertionOptions = await fetchAssertionOptions(formData);
     } catch (serverException) {
         console.log(serverException);
-        showErrorAlert("Request to server failed");
-        throw e;
+        showErrorAlert("Nepavyko pasiekti serverio");
     }
 
     if (assertionOptions) {
@@ -31,14 +30,14 @@ async function handleSignInSubmit(event) {
         });
     }
 
-    showInformationAlert("Authenticating", "Follow instructions your browser provides");
+    showInformationAlert("Autentifikuojama", "Sekite naršyklės instrukcijomis");
 
     let credential;
     try {
         credential = await navigator.credentials.get({ publicKey: assertionOptions });
     } catch (navigatorException) {
         console.log(navigatorException);
-        showErrorAlert("Operation cancelled");
+        showErrorAlert("Operacija atšaukta");
     }
 
     if (credential)
@@ -46,7 +45,7 @@ async function handleSignInSubmit(event) {
             await verifyAssertionWithServer(credential);
         } catch (assertionException) {
             console.log(assertionException);
-            showErrorAlert("Something unexpected happened");
+            showErrorAlert("Nepavyko verifikuoti duomenų");
         }
 }
 
@@ -96,7 +95,7 @@ async function verifyAssertionWithServer(assertedCredential) {
         response = await res.json();
     } catch (serverException) {
         console.log(serverException);
-        showErrorAlert("Request to server failed");
+        showErrorAlert("Nepavyko pasiekti serverio");
         return;
     }
 
@@ -106,7 +105,7 @@ async function verifyAssertionWithServer(assertedCredential) {
         return;
     }
     else
-            showSuccessAlert("Authenticated", "You have been successfully authenticated");
+            showSuccessAlert("Prisijungėte", "Sveikiname sėkmingai prisijungus prie sistemos");
 
     setTimeout(function () {
         location.href = response.redirectionUri;

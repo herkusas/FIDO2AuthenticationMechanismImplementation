@@ -41,7 +41,7 @@ namespace FidoBack
 
             services.AddSingleton(provider =>
                 new ElasticClient(
-                    new ConnectionSettings(provider.GetService<IOptions<ElasticsearchOptions>>().Value.Uri)));
+                    new ConnectionSettings(provider.GetService<IOptions<ElasticsearchOptions>>().Value.Uri).BasicAuthentication("elastic", "SPJncrnwvvLBWzFkCOJZfGjL")));
             
             services.AddControllers().AddNewtonsoftJson();
             services.AddHttpClient();

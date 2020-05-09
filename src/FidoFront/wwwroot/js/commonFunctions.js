@@ -57,7 +57,7 @@ coerceToBase64Url = function (thing) {
 function showErrorAlert(message) {
     window.Swal.fire({
         icon: "error",
-        title: "Error",
+        title: "Klaida",
         text: message
     });
 }
