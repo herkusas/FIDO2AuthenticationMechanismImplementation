@@ -1,4 +1,6 @@
-﻿coerceToArrayBuffer = function (thing, name) {
+﻿const host = "http://localhost:51938";
+
+coerceToArrayBuffer = function (thing, name) {
     if (typeof thing === "string") {
         thing = thing.replace(/-/g, "+").replace(/_/g, "/");
         const str = window.atob(thing);

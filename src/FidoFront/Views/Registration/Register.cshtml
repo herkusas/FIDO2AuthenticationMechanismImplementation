@@ -8,7 +8,7 @@
 
     <style type="text/css">
         
-    </style>
+        </style>
 </head>
 <body>
 <form method="post" id="register">
@@ -17,152 +17,16 @@
         <p> Steps </p>
     </div>
 
-    <div class="form-label-group">
-        <input type="text" id="inputID" class="form-control" placeholder="Slapyvardis" name="username" required autofocus>
-        <label for="inputID">Slapyvardis</label>
-    </div>
+    <input type="text" id="inputID" class="form-control" placeholder="Slapyvardis" name="username" required autofocus>
+    <label for="inputID">Slapyvardis</label>
 
-    <div class="form-label-group">
-        <input type="text" id="inputDisplayName" class="form-control" placeholder="Vartotojo vardas" name="displayName" required>
-        <label for="inputDisplayName">Vartotojo vardas</label>
-    </div>
+    <input type="text" id="inputDisplayName" class="form-control" placeholder="Vartotojo vardas" name="displayName" required>
+    <label for="inputDisplayName">Vartotojo vardas</label>
 
     <button class="btn btn-lg btn-primary btn-block" type="submit">Registruotis</button>
 </form>
 </body>
 </html>
 
-<script type="text/javascript">document.getElementById('register').addEventListener('submit', handleRegisterSubmit);
-
-    const host = "http://localhost:51938";
-
-    async function handleRegisterSubmit(event) {
-        event.preventDefault();
-
-        const username = this.username.value;
-        const displayName = this.displayName.value;
-        const attestationType = "none";
-        const authenticatorAttachment = "";
-        const userVerification = "required";
-
-        const data = {
-            username: username,
-            displayName: displayName,
-            attType: attestationType,
-            authType: authenticatorAttachment,
-            userVerification: userVerification,
-            requireResidentKey: false
-        };
-        let makeCredentialOptions;
-
-        try {
-            makeCredentialOptions = await fetchCredentialOptions(data);
-        } catch (e) {
-            showErrorAlert("Request to server failed");
-            throw e;
-        }
-
-        if (makeCredentialOptions) {
-            if (makeCredentialOptions.status !== "ok") {
-                showErrorAlert(makeCredentialOptions.errorMessage);
-                return;
-            }
-
-            makeCredentialOptions.challenge = coerceToArrayBuffer(makeCredentialOptions.challenge);
-
-            makeCredentialOptions.user.id = coerceToArrayBuffer(makeCredentialOptions.user.id);
-
-            makeCredentialOptions.excludeCredentials = makeCredentialOptions.excludeCredentials.map((c) => {
-                c.id = coerceToArrayBuffer(c.id);
-                return c;
-            });
-
-            if (makeCredentialOptions.authenticatorSelection.authenticatorAttachment === null) makeCredentialOptions.authenticatorSelection.authenticatorAttachment = undefined;
-
-        }
-
-        showInformationAlert("Registering", "Follow instructions your browser provides");
-
-        let newCredential;
-        try {
-            newCredential = await navigator.credentials.create({
-                publicKey: makeCredentialOptions
-            });
-        } catch (e) {
-            showErrorAlert("Operation cancelled");
-        }
-
-        if (newCredential)
-        try {
-            registerNewCredential(newCredential);
-
-        } catch (e) {
-            showErrorAlert("Something unexpected happened");
-        }
-    }
-
-    async function fetchCredentialOptions(formData) {
-        const response = await fetch(host + '/makeCredentialOptions', {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-
-        const data = await response.json();
-
-        return data;
-    }
-
-
-    async function registerNewCredential(newCredential) {
-        const attestationObject = new Uint8Array(newCredential.response.attestationObject);
-        const clientDataJson = new Uint8Array(newCredential.response.clientDataJSON);
-        const rawId = new Uint8Array(newCredential.rawId);
-
-        const data = {
-            id: newCredential.id,
-            rawId: coerceToBase64Url(rawId),
-            type: newCredential.type,
-            extensions: newCredential.getClientExtensionResults(),
-            response: {
-                AttestationObject: coerceToBase64Url(attestationObject),
-                clientDataJson: coerceToBase64Url(clientDataJson)
-            }
-        };
-
-        let response;
-        try {
-            response = await registerCredentialWithServer(data);
-        } catch (e) {
-            showErrorAlert(e);
-        }
-
-        if (response)
-        if (response.status !== "ok") {
-            showErrorAlert(response.errorMessage);
-            return;
-        }
-
-        showSuccessAlert("Registered", "You have been successfully registered to the system");
-
-        return;
-    }
-
-    async function registerCredentialWithServer(formData) {
-        const response = await fetch(host + '/makeCredential', {
-            method: 'POST', 
-            body: JSON.stringify(formData),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
-
-        return data;
-    }
-</script>
+<script src="~/js/registration.js" asp-append-version="true"></script>
+<script src="~/js/commonFunctions.js" asp-append-version="true"></script>

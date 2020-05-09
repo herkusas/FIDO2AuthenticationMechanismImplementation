@@ -28,7 +28,7 @@ namespace FidoFront
             {
                 endpoints.MapControllerRoute(
                     "default",
-                    "{controller=Home}/{action=Index}/{id?}");
+                    "{controller=Registration}/{action=Register}/{id?}");
             });
         }
     }
