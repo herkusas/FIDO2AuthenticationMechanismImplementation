@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
+using FidoBack.V1.Models;
 using FidoBack.V1.Options;
 using FidoBack.V1.Services.DataStore;
 using Microsoft.AspNetCore.Cors;
@@ -39,7 +40,7 @@ namespace FidoBack.V1.Controllers
         [HttpPost]
         [EnableCors]
         [Route("/assertionOptions")]
-        public async Task<IActionResult> AssertionOptionsPost([FromForm] string username, [FromForm] string userVerification)
+        public async Task<IActionResult> AssertionOptions([FromForm] string username, [FromForm] string userVerification)
         {
             try
             {
@@ -65,12 +66,15 @@ namespace FidoBack.V1.Controllers
 
                 _memoryCache.Set(Base64Url.Encode(options.Challenge), options.ToJson());
 
+                var ev = new Event(username, "Successfully made an options for assertion", nameof(AuthenticationController), nameof(AssertionOptions));
+                await _elasticClient.IndexAsync(ev, i => i.Index(GetIndexName(nameof(Ok))));
+
                 return Ok(options);
             }
 
             catch (Exception e)
             {
-                var errorEvent = new ErrorEvent(e, username, nameof(AuthenticationController), nameof(AssertionOptionsPost));
+                var errorEvent = new ErrorEvent(e, username, nameof(AuthenticationController), nameof(AssertionOptions));
                 await _elasticClient.IndexAsync(errorEvent, i => i.Index(GetIndexName(nameof(Exception))));
                 return Ok(new AssertionOptions { Status = "error", ErrorMessage = FormatException(e) });
             }
@@ -99,7 +103,7 @@ namespace FidoBack.V1.Controllers
 
                 username = parsedObject["User"]?["Name"]?.ToString();
 
-                var options = AssertionOptions.FromJson(jsonOptions);
+                var options = Fido2NetLib.AssertionOptions.FromJson(jsonOptions);
 
                 var credentials = _dataStore.GetCredentialById(clientResponse.Id);
 
@@ -120,11 +124,14 @@ namespace FidoBack.V1.Controllers
 
                 _dataStore.UpdateCounter(res.CredentialId, res.Counter);
 
-                var response = new LoginResult
+                var response = new AuthenticationResult
                 {
                     ErrorMessage = res.ErrorMessage,
                     Status = res.Status
                 };
+
+                var ev = new Event(username, "Successful assertion made", nameof(AuthenticationController), nameof(MakeAssertion));
+                await _elasticClient.IndexAsync(ev, i => i.Index(GetIndexName(nameof(Ok))));
 
                 return Ok(response);
             }
@@ -132,7 +139,7 @@ namespace FidoBack.V1.Controllers
             {
                 var errorEvent = new ErrorEvent(e, username, nameof(AuthenticationController), nameof(MakeAssertion));
                 await _elasticClient.IndexAsync(errorEvent, i => i.Index(GetIndexName(nameof(Exception))));
-                return Ok(new LoginResult { Status = "error", ErrorMessage = FormatException(e) });
+                return Ok(new AuthenticationResult { Status = "error", ErrorMessage = FormatException(e) });
             }
         }
 
@@ -149,7 +156,9 @@ namespace FidoBack.V1.Controllers
         }
     }
 
-    internal class LoginResult : Fido2ResponseBase
+    internal class AuthenticationResult : Fido2ResponseBase
     {
+        [JsonProperty("redirectionUri")]
+        public string RedirectionUri = "https://moodle.vgtu.lt/my/";
     }
 }

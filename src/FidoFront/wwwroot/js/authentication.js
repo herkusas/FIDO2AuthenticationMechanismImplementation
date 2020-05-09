@@ -106,5 +106,9 @@ async function verifyAssertionWithServer(assertedCredential) {
         return;
     }
     else
-    showSuccessAlert("Authenticated", "You have been successfully authenticated");
+            showSuccessAlert("Authenticated", "You have been successfully authenticated");
+
+    setTimeout(function () {
+        location.href = response.redirectionUri;
+    }, 2000);
 }

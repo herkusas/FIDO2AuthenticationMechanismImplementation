@@ -67,6 +67,9 @@ namespace FidoBack.V1.Controllers
 
                 _memoryCache.Set(Base64Url.Encode(options.Challenge), options.ToJson());
 
+                var ev = new Event(request.Username, "Successfully made credential options", nameof(RegistrationController), nameof(MakeCredentialOptions));
+                await _elasticClient.IndexAsync(ev, i => i.Index(GetIndexName(nameof(Ok))));
+
                 return Ok(options);
             }
             catch (Exception e)
@@ -117,13 +120,15 @@ namespace FidoBack.V1.Controllers
                     AaGuid = success.Result.Aaguid
                 });
 
+                var ev = new Event(username, "Successfully logged the person in", nameof(RegistrationController), nameof(MakeCredential));
+                await _elasticClient.IndexAsync(ev, i => i.Index(GetIndexName(nameof(Ok))));
+
                 return Ok(success);
             }
             catch (Exception e)
             {
                 var errorEvent = new ErrorEvent(e, username, nameof(RegistrationController), nameof(MakeCredential));
                 await _elasticClient.IndexAsync(errorEvent, i => i.Index(GetIndexName(nameof(Exception))));
-
                 return Ok(new Fido2.CredentialMakeResult { Status = "error", ErrorMessage = FormatException(e) + $"ClientDataJson = {Encoding.UTF8.GetString(attestationResponse.Response.ClientDataJson)}" });
             }
         }
